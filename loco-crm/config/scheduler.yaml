@@ -1,8 +1,0 @@
-# Recurring jobs. The scheduler holds no logic: each entry runs a task by name.
-# Inspect with `cargo loco scheduler --list`; runs inside `cargo loco start --all`.
-output: stdout
-jobs:
-  pipeline_digest:
-    run: "pipeline_digest"
-    schedule: "at 8:00 am"
-    tags: ["digest"]

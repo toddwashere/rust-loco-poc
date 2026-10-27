@@ -142,3 +142,13 @@ settings:
     model: "<%= get_env(name="AI_MODEL", default="claude-haiku-5-5") %>"
   # Where deal-won notifications and the daily digest are sent.
   notify_email: "<%= get_env(name="NOTIFY_EMAIL", default="sales@example.com") %>"
+
+# Recurring jobs (`cargo loco start --all` or `cargo loco scheduler`). The
+# scheduler holds no logic: each entry runs a task by name.
+scheduler:
+  output: stdout
+  jobs:
+    pipeline_digest:
+      run: "pipeline_digest"
+      schedule: "at 8:00 am"
+      tags: ["digest"]
