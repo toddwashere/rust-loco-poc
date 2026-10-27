@@ -1,0 +1,27 @@
+seeded 50 companies, 1000 contacts, 200 deals; login: demo@example.com / demo-password
+== Tue Oct 27 16:33:11 MDT 2026  duration=15s concurrency=50  Apple M4 Pro 12 cores
+loco  cold_start=47ms  idle_RSS=23.8MB
+loco       health         rps=    46891  p50=  1.07ms  p99=   1.35ms  peakRSS=  27.3MB  codes={'200': 703466}
+loco       api_contacts   rps=     3280  p50= 15.19ms  p99=  17.63ms  peakRSS=  31.8MB  codes={'200': 49166}
+loco       ssr_contacts   rps=     3236  p50= 15.39ms  p99=  18.46ms  peakRSS=  32.5MB  codes={'200': 48489}
+loco  post-load RSS=32.4MB
+loco-pool1  cold_start=99ms  idle_RSS=23.6MB
+loco-pool1 health         rps=    46660  p50=  1.07ms  p99=   1.43ms  peakRSS=  26.9MB  codes={'200': 700024}
+loco-pool1 api_contacts   rps=     4943  p50= 10.02ms  p99=  12.19ms  peakRSS=  29.4MB  codes={'200': 74107}
+loco-pool1 ssr_contacts   rps=     4433  p50= 11.09ms  p99=  14.89ms  peakRSS=  30.2MB  codes={'200': 66451}
+loco-pool1  post-load RSS=30.2MB
+next  cold_start=546ms  idle_RSS=128.7MB
+next       health         rps=     8222  p50=  5.59ms  p99=  12.10ms  peakRSS= 454.1MB  codes={'200': 123315}
+next       api_contacts   rps=     4982  p50=  9.50ms  p99=  19.17ms  peakRSS= 460.4MB  codes={'200': 74698}
+next       ssr_contacts   rps=      616  p50= 79.53ms  p99= 100.90ms  peakRSS= 684.5MB  codes={'200': 9189}
+next  post-load RSS=684.5MB
+
+== Build / iteration times (same machine)
+loco  clean debug build (614 crates)        89s wall
+loco  clean release build                   94s wall (564s CPU)
+loco  release binary                        35 MB (unstripped)
+loco  incremental debug build, 1-line edit  13-16s
+loco  incremental test build, 1-line edit   36s
+loco  `cargo loco generate ...` per run     ~30-60s (recompiles to run the generator)
+next  production build (next build)         6.2s
+next  node_modules                          484 MB; .next 36 MB

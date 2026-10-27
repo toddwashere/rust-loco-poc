@@ -7,6 +7,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DUR="${1:-15s}"; CONC="${2:-50}"
 OUT="$ROOT/bench/results"; mkdir -p "$OUT"
 export PATH="$HOME/.cargo/bin:$PATH"
+# Never leave a server holding the port if a run aborts.
+trap 'pkill -f "loco_crm-cli start" 2>/dev/null; pkill -f "next start -p 3100" 2>/dev/null; true' EXIT
 
 # Sum RSS (MB) of a process and all its descendants (Next spawns a child next-server).
 tree_rss() {
@@ -34,8 +36,10 @@ load() { # name url label
   python3 - "$OUT/$name-$label.json" "$name" "$label" "$peak" <<'PY'
 import json,sys
 d=json.load(open(sys.argv[1])); s=d["summary"]; p=d["latencyPercentiles"]
+if not s["successRate"]:
+    sys.exit(f'{sys.argv[2]} {sys.argv[3]}: all requests failed: {d.get("errorDistribution")}')
 codes=d.get("statusCodeDistribution",{})
-print(f'{sys.argv[2]:6} {sys.argv[3]:14} rps={s["requestsPerSec"]:>9.0f}  p50={p["p50"]*1000:6.2f}ms  p99={p["p99"]*1000:7.2f}ms  peakRSS={float(sys.argv[4]):6.1f}MB  codes={codes}')
+print(f'{sys.argv[2]:10} {sys.argv[3]:14} rps={s["requestsPerSec"]:>9.0f}  p50={p["p50"]*1000:6.2f}ms  p99={p["p99"]*1000:7.2f}ms  peakRSS={float(sys.argv[4]):6.1f}MB  codes={codes}')
 PY
 }
 
@@ -53,8 +57,18 @@ run_app() { # name start_cmd health_url api_url page_url cwd
   pkill -P "$pid" 2>/dev/null || true; kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true
 }
 
-echo "== $(date)  duration=$DUR concurrency=$CONC  $(sysctl -n machdep.cpu.brand_string)"
+# Production config for Loco: fresh SQLite files, seeded with the same data the twin seeds itself with.
+export DATABASE_URL="sqlite://bench.sqlite?mode=rwc" QUEUE_URL="sqlite://bench_queue.sqlite?mode=rwc" \
+  JWT_SECRET="bench-only-secret" HOST="http://localhost" MAILER_HOST="localhost" MAILER_USER="bench" MAILER_PASSWORD="bench" LOG_LEVEL="warn"
+(cd "$ROOT/loco-crm" && rm -f bench*.sqlite* && ./target/release/loco_crm-cli db migrate -e production >/dev/null 2>&1 \
+  && ./target/release/loco_crm-cli task seed_demo -e production 2>&1 | tail -1)
+(cd "$ROOT/nextjs-twin" && rm -f twin.sqlite*)
+
+echo "== $(date)  duration=$DUR concurrency=$CONC  $(sysctl -n machdep.cpu.brand_string) $(sysctl -n hw.ncpu) cores"
 run_app loco "./target/release/loco_crm-cli start --environment production" \
-  http://localhost:5150/bench/health "http://localhost:5150/bench/contacts.json?page=3" "http://localhost:5150/bench/contacts?page=3" "$ROOT/loco-crm"
-run_app next "npx next start -p 3100" \
-  http://localhost:3100/api/health "http://localhost:3100/api/contacts?page=3" "http://localhost:3100/contacts?page=3" "$ROOT/nextjs-twin"
+  http://127.0.0.1:5150/bench/health "http://127.0.0.1:5150/bench/contacts.json?page=3" "http://127.0.0.1:5150/bench/contacts?page=3" "$ROOT/loco-crm"
+# Same binary, SQLite pool of 1: sqlx+SQLite loses throughput as the pool grows (see report).
+run_app loco-pool1 "DB_MAX_CONNECTIONS=1 DB_MIN_CONNECTIONS=1 ./target/release/loco_crm-cli start --environment production" \
+  http://127.0.0.1:5150/bench/health "http://127.0.0.1:5150/bench/contacts.json?page=3" "http://127.0.0.1:5150/bench/contacts?page=3" "$ROOT/loco-crm"
+run_app next "./node_modules/.bin/next start -p 3100" \
+  http://127.0.0.1:3100/api/health "http://127.0.0.1:3100/api/contacts?page=3" "http://127.0.0.1:3100/contacts?page=3" "$ROOT/nextjs-twin"
