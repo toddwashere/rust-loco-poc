@@ -1,0 +1,1 @@
+Pipeline digest: {{ open_count }} open deals worth {{ open_total }}

@@ -1,0 +1,1 @@
+Deal won: {{ title }} ({{ amount }})
