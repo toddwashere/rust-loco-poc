@@ -66,6 +66,8 @@ async fn create(
         company_id: Set(params.company_id),
         ..Default::default()
     };
+    // Validate up front: a failure inside before_save surfaces as a 500 DbErr.
+    item.validate().map_err(ModelError::from)?;
     let item = item.insert(&ctx.db).await?;
 
     Ok((StatusCode::CREATED, Json(ContactDto::from(item))).into_response())
@@ -91,6 +93,7 @@ async fn update(
     item.ai_summary = Set(params.ai_summary);
     item.avatar_key = Set(params.avatar_key);
     item.company_id = Set(params.company_id);
+    item.validate().map_err(ModelError::from)?;
     let item = item.update(&ctx.db).await?;
 
     Ok(Json(ContactDto::from(item)).into_response())

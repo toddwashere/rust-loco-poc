@@ -10,6 +10,19 @@ use crate::models::{
     notes::RecentNote,
 };
 
+/// Human-readable field messages; `ModelError::Validation`'s Display is only
+/// "Model validation failed".
+#[must_use]
+pub fn validation_messages(e: &loco_rs::validation::ModelValidationErrors) -> String {
+    e.errors
+        .iter()
+        .flat_map(|(field, errs)| {
+            errs.iter().map(move |err| err.message.clone().unwrap_or_else(|| format!("{field} is invalid")))
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 #[must_use]
 pub fn money(cents: Option<i64>) -> String {
     let dollars = cents.unwrap_or(0) / 100;

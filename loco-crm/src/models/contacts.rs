@@ -171,7 +171,7 @@ impl Model {
     pub async fn create_from_form(db: &DatabaseConnection, form: NewContact) -> ModelResult<Self> {
         let non_empty =
             |s: Option<String>| s.map(|s| s.trim().to_string()).filter(|s| !s.is_empty());
-        Ok(ActiveModel {
+        let contact = ActiveModel {
             first_name: Set(form.first_name.trim().to_string()),
             last_name: Set(form.last_name.trim().to_string()),
             email: Set(form.email.trim().to_string()),
@@ -179,9 +179,11 @@ impl Model {
             title: Set(non_empty(form.title)),
             company_id: Set(non_empty(form.company_id).and_then(|id| id.parse().ok())),
             ..Default::default()
-        }
-        .insert(db)
-        .await?)
+        };
+        // Validate here so callers get ModelError::Validation; inside
+        // before_save the same failure is flattened into DbErr::Custom.
+        contact.validate()?;
+        Ok(contact.insert(db).await?)
     }
 
     /// Plain-text dossier of the contact and their notes, used as LLM input.

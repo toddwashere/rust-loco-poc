@@ -54,13 +54,13 @@ impl Model {
         contact_id: i64,
         body: &str,
     ) -> ModelResult<Self> {
-        Ok(ActiveModel {
+        let note = ActiveModel {
             body: Set(body.trim().to_string()),
             contact_id: Set(contact_id),
             ..Default::default()
-        }
-        .insert(db)
-        .await?)
+        };
+        note.validate()?;
+        Ok(note.insert(db).await?)
     }
 
     /// Latest notes across all contacts, for the dashboard feed.

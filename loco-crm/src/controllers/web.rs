@@ -21,7 +21,7 @@ use crate::{
         deals, notes,
         users::{self, LoginParams, RegisterParams},
     },
-    views::crm::{ColumnView, ContactView, DealView, NoteView, StageView, UserView},
+    views::crm::{validation_messages, ColumnView, ContactView, DealView, NoteView, StageView, UserView},
     workers::{ai_summarize, deal_won},
 };
 
@@ -222,7 +222,7 @@ async fn contacts_create(
                 &v,
                 "contacts/_form.html",
                 json!({
-                    "error": ModelError::Validation(errors).to_string(),
+                    "error": validation_messages(&errors),
                     "companies": companies::Model::all_by_name(&ctx.db).await?,
                 }),
             ),
@@ -270,7 +270,7 @@ async fn notes_create(
         Ok(note) => format::render().view(&v, "contacts/_note.html", json!({ "note": NoteView::from(&note) })),
         Err(ModelError::Validation(e)) => format::render()
             .status(StatusCode::UNPROCESSABLE_ENTITY)
-            .html(&format!("<p class=\"error\">{}</p>", ModelError::Validation(e))),
+            .html(&format!("<p class=\"error\">{}</p>", validation_messages(&e))),
         Err(e) => Err(e.into()),
     }
 }

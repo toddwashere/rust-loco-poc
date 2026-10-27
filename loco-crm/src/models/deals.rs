@@ -154,6 +154,7 @@ impl ActiveModel {
         stage: &str,
     ) -> ModelResult<Model> {
         self.stage = Set(stage.to_string());
+        self.validate()?;
         Ok(self.update(db).await?)
     }
 }

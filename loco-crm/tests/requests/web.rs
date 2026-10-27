@@ -91,7 +91,7 @@ async fn contact_form_validates_on_the_model() {
             .form(&[("first_name", "Bob"), ("email", "not-an-email")])
             .await;
         assert_eq!(res.status_code(), 422);
-        assert!(res.text().contains("valid email"));
+        assert!(res.text().contains("valid email"), "{}", res.text());
 
         let ok = request
             .post("/contacts")

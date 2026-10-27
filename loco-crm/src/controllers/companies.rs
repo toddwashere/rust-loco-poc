@@ -61,6 +61,8 @@ async fn create(
         industry: Set(params.industry),
         ..Default::default()
     };
+    // Validate up front: a failure inside before_save surfaces as a 500 DbErr.
+    item.validate().map_err(ModelError::from)?;
     let item = item.insert(&ctx.db).await?;
 
     Ok((StatusCode::CREATED, Json(CompanyDto::from(item))).into_response())
@@ -81,6 +83,7 @@ async fn update(
     item.name = Set(params.name);
     item.domain = Set(params.domain);
     item.industry = Set(params.industry);
+    item.validate().map_err(ModelError::from)?;
     let item = item.update(&ctx.db).await?;
 
     Ok(Json(CompanyDto::from(item)).into_response())
