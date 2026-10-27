@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+{% block title %}Pipeline · Loco CRM{% endblock %}
+{% block content %}
+<div class="row between">
+  <h1>Pipeline</h1>
+  <a class="button secondary" href="/app/deals/new">New deal (React app)</a>
+</div>
+<p class="muted">Change a card's stage to move it. Moving to <strong>won</strong> queues a notification email.</p>
+<div id="board">{% include "deals/_board.html" %}</div>
+{% endblock %}

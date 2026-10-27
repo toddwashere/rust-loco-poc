@@ -1,0 +1,10 @@
+<main style="padding:24px;font-family:system-ui">
+  <h1>Contacts</h1>
+  <table>
+    <thead><tr><th>Name</th><th>Email</th><th>Company</th></tr></thead>
+    <tbody>
+      {% for r in rows %}<tr><td>{{ r.first_name }} {{ r.last_name }}</td><td>{{ r.email }}</td><td>{{ r.company | default(value="") }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  <a href="/bench/contacts?page={{ next }}">Next page →</a>
+</main>

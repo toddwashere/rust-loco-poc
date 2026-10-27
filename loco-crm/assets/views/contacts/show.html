@@ -1,0 +1,49 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ contact.name }} · Loco CRM{% endblock %}
+{% block content %}
+<p><a href="/contacts">← Contacts</a></p>
+<div class="row profile">
+  {% if contact.avatar_url %}<img class="avatar" src="{{ contact.avatar_url }}" alt="">{% else %}<div class="avatar placeholder">{{ contact.first_name | truncate(length=1, end="") }}</div>{% endif %}
+  <div>
+    <h1>{{ contact.name }}</h1>
+    <p class="muted">{{ contact.title | default(value="") }}{% if contact.company %} at {{ contact.company }}{% endif %} · <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% if contact.phone %} · {{ contact.phone }}{% endif %}</p>
+    <form method="post" action="/contacts/{{ contact.id }}/avatar" enctype="multipart/form-data" class="row upload">
+      <input type="file" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" required>
+      <button type="submit" class="secondary">Upload photo</button>
+    </form>
+  </div>
+</div>
+
+<div class="grid2">
+  <section class="card">
+    <div class="row between"><h2>AI summary</h2>
+      <button class="secondary" hx-post="/contacts/{{ contact.id }}/summarize" hx-target="#summary" hx-swap="outerHTML">Summarize (background job)</button>
+    </div>
+    {% include "contacts/_summary.html" %}
+    <div class="row between"><h2>Follow-up email</h2>
+      <button class="secondary" hx-post="/contacts/{{ contact.id }}/draft-email" hx-target="#draft" hx-indicator="#draft-spinner">Draft (inline LLM call)</button>
+    </div>
+    <span id="draft-spinner" class="htmx-indicator muted">Thinking…</span>
+    <div id="draft"></div>
+  </section>
+
+  <section class="card">
+    <h2>Notes</h2>
+    <form hx-post="/contacts/{{ contact.id }}/notes" hx-target="#notes" hx-swap="afterbegin" hx-on::after-request="if(event.detail.successful) this.reset()" class="stack">
+      <textarea name="body" rows="3" placeholder="Log a call, meeting, or email…" required></textarea>
+      <button type="submit">Add note</button>
+    </form>
+    <ul id="notes" class="feed">
+      {% for note in notes %}{% include "contacts/_note.html" %}{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Deals</h2>
+  {% if deals | length == 0 %}<p class="muted">No deals.</p>{% endif %}
+  <table>
+    {% for d in deals %}<tr><td>{{ d.title }}</td><td><span class="pill {{ d.stage }}">{{ d.stage }}</span></td><td class="num">{{ d.amount }}</td></tr>{% endfor %}
+  </table>
+</section>
+{% endblock %}

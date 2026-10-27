@@ -1,0 +1,32 @@
+{% extends "layouts/base.html" %}
+{% block title %}Dashboard · Loco CRM{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="stats">
+  <a class="card stat" href="/contacts"><span class="num">{{ stats.contacts }}</span><span class="muted">contacts</span></a>
+  <div class="card stat"><span class="num">{{ stats.companies }}</span><span class="muted">companies</span></div>
+  <a class="card stat" href="/deals"><span class="num">{{ stats.deals }}</span><span class="muted">deals</span></a>
+</div>
+<div class="grid2">
+  <section class="card">
+    <h2>Pipeline</h2>
+    <table>
+      <thead><tr><th>Stage</th><th class="num">Deals</th><th class="num">Value</th></tr></thead>
+      <tbody>
+      {% for s in pipeline %}
+        <tr><td><span class="pill {{ s.stage }}">{{ s.stage }}</span></td><td class="num">{{ s.count }}</td><td class="num">{{ s.total }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  <section class="card">
+    <h2>Recent notes</h2>
+    {% if recent | length == 0 %}<p class="muted">No notes yet.</p>{% endif %}
+    <ul class="feed">
+    {% for n in recent %}
+      <li><a href="/contacts/{{ n.contact_id }}">{{ n.contact_name | default(value="Unknown") }}</a> <span class="muted">· {{ n.created }}</span><br>{{ n.body | truncate(length=120) }}</li>
+    {% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Loco CRM{% endblock %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script>
+    // Swap 422 validation responses into the page instead of dropping them.
+    document.addEventListener("DOMContentLoaded", () => {
+      htmx.config.responseHandling = [
+        { code: "204", swap: false },
+        { code: "[23]..", swap: true },
+        { code: "422", swap: true },
+        { code: "[45]..", swap: false, error: true },
+      ];
+    });
+  </script>
+</head>
+<body>
+  {% if user %}
+  <header class="topbar">
+    <a class="brand" href="/dashboard">Loco CRM</a>
+    <nav>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/contacts">Contacts</a>
+      <a href="/deals">Pipeline</a>
+      <a href="/app">React app</a>
+      <a href="/_profiler">Profiler</a>
+    </nav>
+    <form method="post" action="/logout" class="logout">
+      <span class="muted">{{ user.name }}</span>
+      <button type="submit" class="link">Log out</button>
+    </form>
+  </header>
+  {% endif %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <footer id="perf" class="perfbar" title="Server-Timing from the profiler middleware + browser Navigation Timing">measuring…</footer>
+  <script>
+    // Page-load profiler: show Server-Timing + Navigation Timing, and report them.
+    (function () {
+      const bar = document.getElementById("perf");
+      const fmt = (n) => (Math.round(n * 10) / 10).toFixed(1) + "ms";
+      const serverText = (entries) => {
+        const get = (name) => entries.find((e) => e.name === name);
+        const total = get("total"), db = get("db");
+        if (!total) return "";
+        return `server ${fmt(total.duration)} (db ${fmt(db ? db.duration : 0)}${db && db.description ? ", " + db.description : ""})`;
+      };
+      addEventListener("load", () => setTimeout(() => {
+        const n = performance.getEntriesByType("navigation")[0];
+        if (!n) return;
+        bar.textContent = [
+          serverText(n.serverTiming || []),
+          `TTFB ${fmt(n.responseStart)}`,
+          `DOM ready ${fmt(n.domContentLoadedEventEnd)}`,
+          `load ${fmt(n.loadEventEnd)}`,
+        ].filter(Boolean).join(" · ");
+        const body = JSON.stringify({ path: location.pathname, ttfb: n.responseStart, dom_ready: n.domContentLoadedEventEnd, load: n.loadEventEnd });
+        navigator.sendBeacon("/_profiler/rum", new Blob([body], { type: "application/json" }));
+      }, 0));
+      // HTMX partial requests: parse the Server-Timing header off the XHR.
+      document.addEventListener("htmx:afterRequest", (e) => {
+        const h = e.detail.xhr.getResponseHeader("server-timing");
+        if (!h) return;
+        const entries = h.split(",").map((part) => {
+          const [name, ...params] = part.trim().split(";");
+          const o = { name, duration: 0, description: "" };
+          params.forEach((p) => {
+            const [k, v] = p.split("=");
+            if (k === "dur") o.duration = parseFloat(v);
+            if (k === "desc") o.description = v.replace(/"/g, "");
+          });
+          return o;
+        });
+        bar.textContent = `htmx ${e.detail.requestConfig.verb.toUpperCase()} ${e.detail.pathInfo.requestPath}: ${serverText(entries)}`;
+      });
+    })();
+  </script>
+</body>
+</html>

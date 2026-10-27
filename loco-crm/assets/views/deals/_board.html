@@ -1,0 +1,16 @@
+<div class="board">
+{% for col in columns %}
+  <section class="column">
+    <header><span class="pill {{ col.stage }}">{{ col.stage }}</span> <span class="muted">{{ col.total }}</span></header>
+    {% for d in col.cards %}
+    <article class="card deal">
+      <strong>{{ d.title }}</strong>
+      <div class="muted">{{ d.company | default(value="") }} · {{ d.amount }}</div>
+      <select name="stage" hx-post="/deals/{{ d.id }}/stage" hx-target="#board" hx-trigger="change">
+        {% for s in stages %}<option value="{{ s }}" {% if s == d.stage %}selected{% endif %}>{{ s }}</option>{% endfor %}
+      </select>
+    </article>
+    {% endfor %}
+  </section>
+{% endfor %}
+</div>

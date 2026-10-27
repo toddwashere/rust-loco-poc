@@ -1,0 +1,9 @@
+{% if pending %}
+<div id="summary" class="summary pending" hx-get="/contacts/{{ contact.id }}/summary" hx-trigger="every 1s" hx-swap="outerHTML">
+  <span class="muted">Queued — the AI worker is writing a summary…</span>
+</div>
+{% else %}
+<div id="summary" class="summary">
+  {% if contact.ai_summary %}<p class="prewrap">{{ contact.ai_summary }}</p>{% else %}<p class="muted">No summary yet.</p>{% endif %}
+</div>
+{% endif %}

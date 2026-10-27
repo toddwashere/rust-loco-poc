@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+{% block title %}Contacts · Loco CRM{% endblock %}
+{% block content %}
+<div class="row between">
+  <h1>Contacts</h1>
+  <details class="new">
+    <summary class="button">New contact</summary>
+    <div id="contact-form" class="card">{% include "contacts/_form.html" %}</div>
+  </details>
+</div>
+<input type="search" name="q" value="{{ q }}" placeholder="Search name or email…"
+       hx-get="/contacts" hx-trigger="input changed delay:250ms, search" hx-target="#contact-rows"
+       hx-push-url="true" class="search">
+<table class="card">
+  <thead><tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th></tr></thead>
+  <tbody id="contact-rows">{% include "contacts/_rows.html" %}</tbody>
+</table>
+{% endblock %}

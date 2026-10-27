@@ -1,0 +1,19 @@
+<form hx-post="/contacts" hx-target="#contact-form" class="stack">
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="row">
+    <label>First name <input name="first_name" required></label>
+    <label>Last name <input name="last_name"></label>
+  </div>
+  <label>Email <input type="email" name="email" required></label>
+  <div class="row">
+    <label>Phone <input name="phone"></label>
+    <label>Title <input name="title"></label>
+  </div>
+  <label>Company
+    <select name="company_id">
+      <option value="">—</option>
+      {% for co in companies %}<option value="{{ co.id }}">{{ co.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Create contact</button>
+</form>

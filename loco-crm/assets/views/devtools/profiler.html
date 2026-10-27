@@ -1,0 +1,39 @@
+{% extends "layouts/base.html" %}
+{% block title %}Profiler · Loco CRM{% endblock %}
+{% block content %}
+<div class="row between">
+  <h1>Profiler</h1>
+  <form method="post" action="/_profiler/reset"><button class="secondary">Reset</button></form>
+</div>
+<p class="muted">In-process, last 2048 samples per key. Uptime {{ snap.uptime_secs }}s · RSS {{ snap.rss_mb | default(value="?") }} MB · <a href="/_profiler.json">JSON</a></p>
+
+<section class="card">
+  <h2>Server: per route</h2>
+  <table>
+    <thead><tr><th>Route</th><th class="num">Count</th><th class="num">5xx</th><th class="num">p50</th><th class="num">p95</th><th class="num">p99</th><th class="num">max</th><th class="num">DB p50</th><th class="num">Queries</th></tr></thead>
+    <tbody>
+    {% for r in snap.routes %}
+      <tr><td><code>{{ r.route }}</code></td><td class="num">{{ r.count }}</td><td class="num">{{ r.errors }}</td>
+        <td class="num">{{ r.total_ms.p50 | round(precision=2) }}</td><td class="num">{{ r.total_ms.p95 | round(precision=2) }}</td>
+        <td class="num">{{ r.total_ms.p99 | round(precision=2) }}</td><td class="num">{{ r.total_ms.max | round(precision=2) }}</td>
+        <td class="num">{{ r.db_ms_p50 | round(precision=2) }}</td><td class="num">{{ r.queries_p50 }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted">All times in ms. Server time ends when the handler returns its response.</p>
+</section>
+
+<section class="card">
+  <h2>Browser: page loads (RUM)</h2>
+  <table>
+    <thead><tr><th>Path</th><th class="num">Loads</th><th class="num">TTFB p50</th><th class="num">TTFB p95</th><th class="num">DOM ready p50</th><th class="num">Load p50</th><th class="num">Load p95</th></tr></thead>
+    <tbody>
+    {% for r in snap.rum %}
+      <tr><td><code>{{ r.path }}</code></td><td class="num">{{ r.count }}</td>
+        <td class="num">{{ r.ttfb_ms.p50 | round(precision=1) }}</td><td class="num">{{ r.ttfb_ms.p95 | round(precision=1) }}</td>
+        <td class="num">{{ r.dom_ready_ms.p50 | round(precision=1) }}</td><td class="num">{{ r.load_ms.p50 | round(precision=1) }}</td><td class="num">{{ r.load_ms.p95 | round(precision=1) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
