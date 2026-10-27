@@ -31,7 +31,7 @@ export function New() {
           <input
             id="name"
             type="text"
-            value={form.name}
+            value={form.name ?? ""}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
           />
@@ -41,7 +41,7 @@ export function New() {
           <input
             id="domain"
             type="text"
-            value={form.domain}
+            value={form.domain ?? ""}
             onChange={(e) => setForm({ ...form, domain: e.target.value })}
           />
         </div>
@@ -50,7 +50,7 @@ export function New() {
           <input
             id="industry"
             type="text"
-            value={form.industry}
+            value={form.industry ?? ""}
             onChange={(e) => setForm({ ...form, industry: e.target.value })}
           />
         </div>

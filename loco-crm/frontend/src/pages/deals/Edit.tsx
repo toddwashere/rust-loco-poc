@@ -62,7 +62,7 @@ export function Edit() {
           <input
             id="title"
             type="text"
-            value={form.title}
+            value={form.title ?? ""}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             required
           />
@@ -72,9 +72,9 @@ export function Edit() {
           <input
             id="amount_cents"
             type="number"
-            value={form.amount_cents}
+            value={form.amount_cents ?? ""}
             onChange={(e) =>
-              setForm({ ...form, amount_cents: Number(e.target.value) })
+              setForm({ ...form, amount_cents: e.target.value === "" ? null : Number(e.target.value) })
             }
           />
         </div>
@@ -83,7 +83,7 @@ export function Edit() {
           <input
             id="stage"
             type="text"
-            value={form.stage}
+            value={form.stage ?? ""}
             onChange={(e) => setForm({ ...form, stage: e.target.value })}
             required
           />
@@ -93,9 +93,9 @@ export function Edit() {
           <input
             id="company_id"
             type="number"
-            value={form.company_id}
+            value={form.company_id ?? ""}
             onChange={(e) =>
-              setForm({ ...form, company_id: Number(e.target.value) })
+              setForm({ ...form, company_id: e.target.value === "" ? null : Number(e.target.value) })
             }
           />
         </div>
@@ -104,9 +104,9 @@ export function Edit() {
           <input
             id="contact_id"
             type="number"
-            value={form.contact_id}
+            value={form.contact_id ?? ""}
             onChange={(e) =>
-              setForm({ ...form, contact_id: Number(e.target.value) })
+              setForm({ ...form, contact_id: e.target.value === "" ? null : Number(e.target.value) })
             }
           />
         </div>

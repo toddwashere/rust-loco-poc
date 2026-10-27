@@ -65,7 +65,7 @@ export function Edit() {
           <input
             id="first_name"
             type="text"
-            value={form.first_name}
+            value={form.first_name ?? ""}
             onChange={(e) => setForm({ ...form, first_name: e.target.value })}
             required
           />
@@ -75,7 +75,7 @@ export function Edit() {
           <input
             id="last_name"
             type="text"
-            value={form.last_name}
+            value={form.last_name ?? ""}
             onChange={(e) => setForm({ ...form, last_name: e.target.value })}
             required
           />
@@ -85,7 +85,7 @@ export function Edit() {
           <input
             id="email"
             type="text"
-            value={form.email}
+            value={form.email ?? ""}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
           />
@@ -95,7 +95,7 @@ export function Edit() {
           <input
             id="phone"
             type="text"
-            value={form.phone}
+            value={form.phone ?? ""}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
           />
         </div>
@@ -104,7 +104,7 @@ export function Edit() {
           <input
             id="title"
             type="text"
-            value={form.title}
+            value={form.title ?? ""}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
         </div>
@@ -112,7 +112,7 @@ export function Edit() {
           <label htmlFor="ai_summary">Ai summary</label>
           <textarea
             id="ai_summary"
-            value={form.ai_summary}
+            value={form.ai_summary ?? ""}
             onChange={(e) => setForm({ ...form, ai_summary: e.target.value })}
           />
         </div>
@@ -121,7 +121,7 @@ export function Edit() {
           <input
             id="avatar_key"
             type="text"
-            value={form.avatar_key}
+            value={form.avatar_key ?? ""}
             onChange={(e) => setForm({ ...form, avatar_key: e.target.value })}
           />
         </div>
@@ -130,9 +130,9 @@ export function Edit() {
           <input
             id="company_id"
             type="number"
-            value={form.company_id}
+            value={form.company_id ?? ""}
             onChange={(e) =>
-              setForm({ ...form, company_id: Number(e.target.value) })
+              setForm({ ...form, company_id: e.target.value === "" ? null : Number(e.target.value) })
             }
           />
         </div>
