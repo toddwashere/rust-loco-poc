@@ -15,5 +15,5 @@ async fn emails_the_digest() {
         .unwrap();
     assert_eq!(mail_count(&boot.app_context), before + 1);
     let mail = boot.app_context.mailer.as_ref().unwrap().deliveries().messages.last().cloned().unwrap();
-    assert!(mail.contains("Pipeline digest: 1 open deals worth $12,500"), "{mail}");
+    assert!(mail.contains("Subject: Pipeline digest: 1 open deals worth $12,500"), "{mail}");
 }
