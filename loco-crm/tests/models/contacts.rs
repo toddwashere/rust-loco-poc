@@ -33,11 +33,15 @@ async fn search_filters_and_joins_company() {
     create_crm(&boot.app_context).await;
     let db = &boot.app_context.db;
 
-    let (rows, pages) = contacts::Model::search(db, Some("lovelace"), 1, 20).await.unwrap();
+    let (rows, pages) = contacts::Model::search(db, Some("lovelace"), 1, 20)
+        .await
+        .unwrap();
     assert_eq!((rows.len(), pages), (1, 1));
     assert_eq!(rows[0].company.as_ref().unwrap().name, "Acme Corp");
 
-    let (none, _) = contacts::Model::search(db, Some("zzz"), 1, 20).await.unwrap();
+    let (none, _) = contacts::Model::search(db, Some("zzz"), 1, 20)
+        .await
+        .unwrap();
     assert!(none.is_empty());
 }
 

@@ -13,8 +13,13 @@ async fn sends_the_won_email() {
     let boot = boot_test::<App>().await.unwrap();
     let crm = create_crm(&boot.app_context).await;
     let before = mail_count(&boot.app_context);
-    Worker::perform_later(&boot.app_context, WorkerArgs { deal_id: crm.deal.id })
-        .await
-        .unwrap();
+    Worker::perform_later(
+        &boot.app_context,
+        WorkerArgs {
+            deal_id: crm.deal.id,
+        },
+    )
+    .await
+    .unwrap();
     assert_eq!(mail_count(&boot.app_context), before + 1);
 }

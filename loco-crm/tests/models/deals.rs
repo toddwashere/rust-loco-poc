@@ -10,7 +10,9 @@ use crate::support::create_crm;
 async fn pipeline_summary_aggregates_per_stage_in_board_order() {
     let boot = boot_test::<App>().await.unwrap();
     create_crm(&boot.app_context).await;
-    let summary = deals::Model::pipeline_summary(&boot.app_context.db).await.unwrap();
+    let summary = deals::Model::pipeline_summary(&boot.app_context.db)
+        .await
+        .unwrap();
     let stages: Vec<_> = summary.iter().map(|s| s.stage.as_str()).collect();
     assert_eq!(stages, deals::STAGES);
     let proposal = summary.iter().find(|s| s.stage == "proposal").unwrap();

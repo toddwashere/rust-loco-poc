@@ -22,17 +22,19 @@ struct BenchRow {
 }
 
 async fn rows(ctx: &AppContext, page: Option<u64>) -> Result<Vec<BenchRow>> {
-    Ok(contacts::Model::page_with_company(&ctx.db, page.unwrap_or(1).max(1), 20)
-        .await?
-        .into_iter()
-        .map(|r| BenchRow {
-            id: r.contact.id,
-            first_name: r.contact.first_name,
-            last_name: r.contact.last_name,
-            email: r.contact.email,
-            company: r.company.map(|c| c.name),
-        })
-        .collect())
+    Ok(
+        contacts::Model::page_with_company(&ctx.db, page.unwrap_or(1).max(1), 20)
+            .await?
+            .into_iter()
+            .map(|r| BenchRow {
+                id: r.contact.id,
+                first_name: r.contact.first_name,
+                last_name: r.contact.last_name,
+                email: r.contact.email,
+                company: r.company.map(|c| c.name),
+            })
+            .collect(),
+    )
 }
 
 #[debug_handler]
@@ -41,7 +43,10 @@ async fn health() -> Result<Response> {
 }
 
 #[debug_handler]
-async fn contacts_json(State(ctx): State<AppContext>, Query(q): Query<PageQuery>) -> Result<Response> {
+async fn contacts_json(
+    State(ctx): State<AppContext>,
+    Query(q): Query<PageQuery>,
+) -> Result<Response> {
     format::json(rows(&ctx, q.page).await?)
 }
 

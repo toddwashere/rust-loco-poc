@@ -19,7 +19,12 @@ impl Task for PipelineDigest {
     async fn run(&self, ctx: &AppContext, _vars: &task::Vars) -> Result<()> {
         let stages = deals::Model::pipeline_summary(&ctx.db).await?;
         for s in &stages {
-            println!("{:<10} {:>4} deals  {}", s.stage, s.count, money(Some(s.total_cents)));
+            println!(
+                "{:<10} {:>4} deals  {}",
+                s.stage,
+                s.count,
+                money(Some(s.total_cents))
+            );
         }
         let to = Settings::from_ctx(ctx)?.notify_email;
         DealMailer::send_digest(ctx, &to, &stages).await

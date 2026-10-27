@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::{llm, models::contacts};
 
-const SYSTEM: &str = "You are a CRM assistant. Summarize the relationship with this contact in 3 short \
+const SYSTEM: &str =
+    "You are a CRM assistant. Summarize the relationship with this contact in 3 short \
 bullet points: who they are, where the deal stands, and the single best next step. Be concrete.";
 
 pub struct Worker {

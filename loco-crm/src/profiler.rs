@@ -234,7 +234,7 @@ pub fn snapshot() -> Snapshot {
                 .collect()
         })
         .unwrap_or_default();
-    routes.sort_by(|a, b| b.count.cmp(&a.count));
+    routes.sort_by_key(|r| std::cmp::Reverse(r.count));
 
     let mut rum: Vec<RumReport> = RUM
         .lock()
@@ -250,7 +250,7 @@ pub fn snapshot() -> Snapshot {
                 .collect()
         })
         .unwrap_or_default();
-    rum.sort_by(|a, b| b.count.cmp(&a.count));
+    rum.sort_by_key(|r| std::cmp::Reverse(r.count));
 
     Snapshot {
         uptime_secs: STARTED.elapsed().as_secs(),

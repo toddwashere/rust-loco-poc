@@ -14,7 +14,9 @@ async fn blank_notes_are_rejected_and_recent_joins_contact() {
     let blank = notes::Model::create_for_contact(db, crm.contact.id, "   ").await;
     assert!(matches!(blank, Err(ModelError::Validation(_))));
 
-    notes::Model::create_for_contact(db, crm.contact.id, "Follow up Tuesday").await.unwrap();
+    notes::Model::create_for_contact(db, crm.contact.id, "Follow up Tuesday")
+        .await
+        .unwrap();
     let recent = notes::Model::recent(db, 5).await.unwrap();
     assert_eq!(recent[0].contact.as_ref().unwrap().first_name, "Ada");
 }

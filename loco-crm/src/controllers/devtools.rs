@@ -23,12 +23,18 @@ async fn profiler_page(
 }
 
 #[debug_handler]
-async fn profiler_json(CurrentUser(_user): CurrentUser, State(_ctx): State<AppContext>) -> Result<Response> {
+async fn profiler_json(
+    CurrentUser(_user): CurrentUser,
+    State(_ctx): State<AppContext>,
+) -> Result<Response> {
     format::json(profiler::snapshot())
 }
 
 #[debug_handler]
-async fn profiler_reset(CurrentUser(_user): CurrentUser, State(_ctx): State<AppContext>) -> Result<Response> {
+async fn profiler_reset(
+    CurrentUser(_user): CurrentUser,
+    State(_ctx): State<AppContext>,
+) -> Result<Response> {
     profiler::reset();
     format::redirect("/_profiler")
 }

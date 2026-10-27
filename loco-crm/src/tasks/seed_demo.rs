@@ -34,10 +34,21 @@ impl Task for SeedDemo {
     }
 
     async fn run(&self, ctx: &AppContext, vars: &task::Vars) -> Result<()> {
-        let n_companies: i64 = vars.cli_arg("companies").ok().and_then(|v| v.parse().ok()).unwrap_or(50);
-        let n_contacts: i64 = vars.cli_arg("contacts").ok().and_then(|v| v.parse().ok()).unwrap_or(1000);
+        let n_companies: i64 = vars
+            .cli_arg("companies")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(50);
+        let n_contacts: i64 = vars
+            .cli_arg("contacts")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(1000);
 
-        if users::Model::find_by_email(&ctx.db, DEMO_EMAIL).await.is_err() {
+        if users::Model::find_by_email(&ctx.db, DEMO_EMAIL)
+            .await
+            .is_err()
+        {
             let user = users::Model::create_with_password(
                 &ctx.db,
                 &RegisterParams {
@@ -60,7 +71,9 @@ impl Task for SeedDemo {
         companies::Entity::insert_many((1..=n_companies).map(|i| companies::ActiveModel {
             name: Set(format!("Company {i}")),
             domain: Set(Some(format!("company{i}.example"))),
-            industry: Set(Some(INDUSTRIES[(i as usize) % INDUSTRIES.len()].to_string())),
+            industry: Set(Some(
+                INDUSTRIES[(i as usize) % INDUSTRIES.len()].to_string(),
+            )),
             ..Default::default()
         }))
         .exec(&txn)
@@ -78,7 +91,9 @@ impl Task for SeedDemo {
             .collect();
         // SQLite caps bound parameters per statement, so insert in chunks.
         for chunk in contact_rows.chunks(200) {
-            contacts::Entity::insert_many(chunk.to_vec()).exec(&txn).await?;
+            contacts::Entity::insert_many(chunk.to_vec())
+                .exec(&txn)
+                .await?;
         }
 
         let n_deals = (n_contacts / 5).max(1);

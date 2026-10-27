@@ -15,13 +15,17 @@ use crate::{
     llm,
     mailers::auth::AuthMailer,
     models::{
-        _entities::{companies as companies_entity, contacts as contacts_entity, deals as deals_entity},
+        _entities::{
+            companies as companies_entity, contacts as contacts_entity, deals as deals_entity,
+        },
         companies,
         contacts::{self, NewContact},
         deals, notes,
         users::{self, LoginParams, RegisterParams},
     },
-    views::crm::{validation_messages, ColumnView, ContactView, DealView, NoteView, StageView, UserView},
+    views::crm::{
+        validation_messages, ColumnView, ContactView, DealView, NoteView, StageView, UserView,
+    },
     workers::{ai_summarize, deal_won},
 };
 
@@ -83,7 +87,11 @@ fn sign_in(ctx: &AppContext, user: &users::Model) -> Result<Response> {
 
 #[debug_handler]
 async fn login_page(ViewEngine(v): ViewEngine<TeraView>) -> Result<Response> {
-    format::render().view(&v, "auth/login.html", json!({ "user": null, "error": null, "email": "" }))
+    format::render().view(
+        &v,
+        "auth/login.html",
+        json!({ "user": null, "error": null, "email": "" }),
+    )
 }
 
 #[debug_handler]
@@ -198,7 +206,10 @@ async fn contacts_index(
         "error": null,
     });
     // Live search swaps only the table body.
-    let template = if headers.get("hx-target").is_some_and(|t| t == "contact-rows") {
+    let template = if headers
+        .get("hx-target")
+        .is_some_and(|t| t == "contact-rows")
+    {
         "contacts/_rows.html"
     } else {
         "contacts/index.html"
@@ -267,10 +278,17 @@ async fn notes_create(
 ) -> Result<Response> {
     let contact = contacts::Model::find_by_id(&ctx.db, id).await?;
     match notes::Model::create_for_contact(&ctx.db, contact.id, &form.body).await {
-        Ok(note) => format::render().view(&v, "contacts/_note.html", json!({ "note": NoteView::from(&note) })),
+        Ok(note) => format::render().view(
+            &v,
+            "contacts/_note.html",
+            json!({ "note": NoteView::from(&note) }),
+        ),
         Err(ModelError::Validation(e)) => format::render()
             .status(StatusCode::UNPROCESSABLE_ENTITY)
-            .html(&format!("<p class=\"error\">{}</p>", validation_messages(&e))),
+            .html(&format!(
+                "<p class=\"error\">{}</p>",
+                validation_messages(&e)
+            )),
         Err(e) => Err(e.into()),
     }
 }
@@ -284,8 +302,17 @@ async fn summarize(
     Path(id): Path<i64>,
 ) -> Result<Response> {
     let contact = contacts::Model::find_by_id(&ctx.db, id).await?;
-    let contact = contact.into_active_model().set_ai_summary(&ctx.db, None).await?;
-    ai_summarize::Worker::perform_later(&ctx, ai_summarize::WorkerArgs { contact_id: contact.id }).await?;
+    let contact = contact
+        .into_active_model()
+        .set_ai_summary(&ctx.db, None)
+        .await?;
+    ai_summarize::Worker::perform_later(
+        &ctx,
+        ai_summarize::WorkerArgs {
+            contact_id: contact.id,
+        },
+    )
+    .await?;
     // In ForegroundBlocking mode (tests) the job already ran; re-read either way.
     let contact = contacts::Model::find_by_id(&ctx.db, id).await?;
     render_summary(&v, &contact)
@@ -386,7 +413,14 @@ async fn file(
         Some("webp") => "image/webp",
         _ => "application/octet-stream",
     };
-    Ok(([(header::CONTENT_TYPE, mime), (header::CACHE_CONTROL, "private, max-age=3600")], bytes).into_response())
+    Ok((
+        [
+            (header::CONTENT_TYPE, mime),
+            (header::CACHE_CONTROL, "private, max-age=3600"),
+        ],
+        bytes,
+    )
+        .into_response())
 }
 
 // ---------- deals board ----------
@@ -426,7 +460,10 @@ async fn deals_move(
 ) -> Result<Response> {
     let deal = deals::Model::find_by_id(&ctx.db, id).await?;
     let was_won = deal.stage == "won";
-    let deal = deal.into_active_model().move_to_stage(&ctx.db, &form.stage).await?;
+    let deal = deal
+        .into_active_model()
+        .move_to_stage(&ctx.db, &form.stage)
+        .await?;
     if deal.stage == "won" && !was_won {
         deal_won::Worker::perform_later(&ctx, deal_won::WorkerArgs { deal_id: deal.id }).await?;
     }

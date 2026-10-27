@@ -13,9 +13,14 @@ use crate::support::create_crm;
 async fn writes_a_summary_with_the_mock_provider() {
     let boot = boot_test::<App>().await.unwrap();
     let crm = create_crm(&boot.app_context).await;
-    Worker::perform_later(&boot.app_context, WorkerArgs { contact_id: crm.contact.id })
-        .await
-        .unwrap();
+    Worker::perform_later(
+        &boot.app_context,
+        WorkerArgs {
+            contact_id: crm.contact.id,
+        },
+    )
+    .await
+    .unwrap();
     let saved = contacts::Model::find_by_id(&boot.app_context.db, crm.contact.id)
         .await
         .unwrap();

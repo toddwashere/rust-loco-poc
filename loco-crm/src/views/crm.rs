@@ -17,7 +17,11 @@ pub fn validation_messages(e: &loco_rs::validation::ModelValidationErrors) -> St
     e.errors
         .iter()
         .flat_map(|(field, errs)| {
-            errs.iter().map(move |err| err.message.clone().unwrap_or_else(|| format!("{field} is invalid")))
+            errs.iter().map(move |err| {
+                err.message
+                    .clone()
+                    .unwrap_or_else(|| format!("{field} is invalid"))
+            })
         })
         .collect::<Vec<_>>()
         .join(" ")
@@ -29,7 +33,7 @@ pub fn money(cents: Option<i64>) -> String {
     let digits = dollars.unsigned_abs().to_string();
     let mut out = String::with_capacity(digits.len() + 4);
     for (i, c) in digits.chars().enumerate() {
-        if i > 0 && (digits.len() - i) % 3 == 0 {
+        if i > 0 && (digits.len() - i).is_multiple_of(3) {
             out.push(',');
         }
         out.push(c);

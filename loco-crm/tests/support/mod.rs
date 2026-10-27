@@ -42,7 +42,11 @@ pub async fn create_crm(ctx: &AppContext) -> Crm {
     .insert(&ctx.db)
     .await
     .unwrap();
-    Crm { company, contact, deal }
+    Crm {
+        company,
+        contact,
+        deal,
+    }
 }
 
 /// Register + log in through the JSON API and return the session cookie
@@ -56,7 +60,10 @@ pub async fn session_cookie(request: &TestServer, ctx: &AppContext) -> (HeaderNa
         .post("/api/auth/login")
         .json(&serde_json::json!({ "email": "tess@example.com", "password": "pass1234" }))
         .await;
-    let token = res.json::<serde_json::Value>()["token"].as_str().unwrap().to_string();
+    let token = res.json::<serde_json::Value>()["token"]
+        .as_str()
+        .unwrap()
+        .to_string();
     let _ = ctx;
     (
         HeaderName::from_static("cookie"),
@@ -65,7 +72,10 @@ pub async fn session_cookie(request: &TestServer, ctx: &AppContext) -> (HeaderNa
 }
 
 pub fn htmx() -> (HeaderName, HeaderValue) {
-    (HeaderName::from_static("hx-request"), HeaderValue::from_static("true"))
+    (
+        HeaderName::from_static("hx-request"),
+        HeaderValue::from_static("true"),
+    )
 }
 
 pub fn mail_count(ctx: &AppContext) -> usize {

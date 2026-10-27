@@ -10,9 +10,15 @@ async fn bench_endpoints_match_the_nextjs_twin_shape() {
     request::<App, _, _>(|request, ctx| async move {
         create_crm(&ctx).await;
         let health = request.get("/bench/health").await;
-        assert_eq!(health.json::<serde_json::Value>(), serde_json::json!({ "ok": true }));
+        assert_eq!(
+            health.json::<serde_json::Value>(),
+            serde_json::json!({ "ok": true })
+        );
 
-        let rows = request.get("/bench/contacts.json?page=1").await.json::<serde_json::Value>();
+        let rows = request
+            .get("/bench/contacts.json?page=1")
+            .await
+            .json::<serde_json::Value>();
         let first = &rows[0];
         for key in ["id", "first_name", "last_name", "email", "company"] {
             assert!(first.get(key).is_some(), "missing {key}");
