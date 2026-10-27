@@ -73,4 +73,4 @@ bench/run.sh 15s 50
 | Benchmark endpoints (mirror the Next twin) | `src/controllers/bench.rs` |
 | Tests | `tests/` (`tests/support/mod.rs` has fixtures) |
 
-`git log` walks through the build step by step. Commits that fix framework issues explain the issue in their messages. The early commits were split out of one working tree after the fact, so the commits before `e63c7a0` don't each build on their own.
+`git log` walks through the build step by step. Commits that fix framework issues explain the issue in their messages. The early commits were split out of one working tree after the fact, so the commits before `d05db54` don't each build on their own.

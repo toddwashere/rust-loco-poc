@@ -88,10 +88,10 @@ Each item below has a commit in this repo that shows the problem and the fix.
 
 1. **The edit-compile loop is slow.** That's 13–16s after a one-line change, 36s to rebuild tests, and ~1 minute per `cargo loco generate` (it recompiles the app to run the generator). Next.js HMR is under a second. Over a day of iteration, this is the single biggest velocity cost.
 2. **The HTML/HTMX story regressed in 1.x.** `scaffold --htmx` and `--html` were removed in favour of the React SPA, yet the docs, the screencasts (cast #007), and the bundled agent skill still describe them. So server-rendered CRUD is all hand-written: about 500 lines of controller and 330 lines of templates here.
-3. **Documented validation behavior is wrong.** The recipe says a failed `validate()` in `before_save` becomes `ModelError::Validation` (HTTP 400). It actually arrives as a `DbErr` and renders as **500**, and the generated API controllers have this bug out of the box. The fix was to validate explicitly before saving (commit `2239388`). The error's display text is also just "Model validation failed", so you write your own field-message formatting.
-4. **The generated React SPA doesn't build** with nullable columns: `Option<T>` → `T | null` → `<input value>` fails type-checking (commit `9d4044d`). The generated UI is also bare: raw "Company id" number inputs, no pagination controls, no styling.
+3. **Documented validation behavior is wrong.** The recipe says a failed `validate()` in `before_save` becomes `ModelError::Validation` (HTTP 400). It actually arrives as a `DbErr` and renders as **500**, and the generated API controllers have this bug out of the box. The fix was to validate explicitly before saving (commit `5c3cad2`). The error's display text is also just "Model validation failed", so you write your own field-message formatting.
+4. **The generated React SPA doesn't build** with nullable columns: `Option<T>` → `T | null` → `<input value>` fails type-checking (commit `f14c5fa`). The generated UI is also bare: raw "Company id" number inputs, no pagination controls, no styling.
 5. **Several "generate it and it works" gaps:**
-   - `generate scheduler` writes a file that `start --all` never reads (commit `4ff978e`).
+   - `generate scheduler` writes a file that `start --all` never reads (commit `e231992`).
    - Tasks don't auto-migrate a fresh DB.
    - The dev DB pool is 1 connection shared with the queue worker. The profiler caught a 46 ms wait on `/api/auth/current` because of it.
    - Generated migrations add no indexes on foreign keys.
